@@ -1,15 +1,12 @@
-// server/config/passportConfig.js
 const LocalStrategy = require('passport-local').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const { ObjectId } = require('mongodb');
 
 module.exports = function (passport, getDb) {
-  // Serialize user into session
   passport.serializeUser((user, done) => {
     done(null, user._id);
   });
 
-  // Deserialize user from session
   passport.deserializeUser(async (id, done) => {
     try {
       const db = getDb();
@@ -32,7 +29,6 @@ module.exports = function (passport, getDb) {
         if (!user) {
           return done(null, false, { message: 'Incorrect username' });
         }
-        // Comparing raw text (not hashed) as per current setup
         if (user.password !== password) {
           return done(null, false, { message: 'Incorrect password' });
         }
@@ -54,17 +50,14 @@ module.exports = function (passport, getDb) {
       async (accessToken, refreshToken, profile, done) => {
         try {
           const db = getDb();
-          // Check if user already exists using GitHub ID
           let user = await db.collection('users').findOne({ githubId: profile.id });
           if (user) {
             return done(null, user);
           }
-          // Otherwise, create a new user record
           const newUser = {
             username: profile.username,
             githubId: profile.id,
             displayName: profile.displayName,
-            // You can include additional profile info as needed
           };
           const result = await db.collection('users').insertOne(newUser);
           newUser._id = result.insertedId;

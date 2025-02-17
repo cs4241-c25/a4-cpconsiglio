@@ -1,9 +1,7 @@
-// server/routes/authRoutes.js
 const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 
-// --- Existing Local Auth Routes ---
 // Login
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
@@ -37,14 +35,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Logout
 router.get('/logout', (req, res) => {
   req.logout(() => {
     res.json({ message: 'Logged out successfully' });
   });
 });
 
-// Check authentication status
 router.get('/checkauth', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({ authenticated: true, user: req.user });
@@ -53,9 +49,6 @@ router.get('/checkauth', (req, res) => {
   }
 });
 
-// --- New GitHub Auth Routes ---
-
-// Initiate GitHub Authentication
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
 // GitHub Callback URL
@@ -63,7 +56,6 @@ router.get(
   '/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   (req, res) => {
-    // Successful authentication, redirect as desired.
     res.redirect('/todos');
   }
 );
