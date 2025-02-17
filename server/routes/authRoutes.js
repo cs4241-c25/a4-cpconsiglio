@@ -3,7 +3,8 @@ const express = require('express');
 const passport = require('passport');
 const router = express.Router();
 
-// Handle login
+// --- Existing Local Auth Routes ---
+// Login
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
@@ -17,7 +18,7 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// Simple registration
+// Registration
 router.post('/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -29,7 +30,6 @@ router.post('/register', async (req, res) => {
     if (existing) {
       return res.status(400).json({ message: 'User already exists' });
     }
-
     const result = await db.collection('users').insertOne({ username, password });
     return res.json({ success: true, userId: result.insertedId });
   } catch (error) {
@@ -44,7 +44,7 @@ router.get('/logout', (req, res) => {
   });
 });
 
-// Check if user is authenticated
+// Check authentication status
 router.get('/checkauth', (req, res) => {
   if (req.isAuthenticated()) {
     res.json({ authenticated: true, user: req.user });
@@ -52,5 +52,20 @@ router.get('/checkauth', (req, res) => {
     res.json({ authenticated: false });
   }
 });
+
+// --- New GitHub Auth Routes ---
+
+// Initiate GitHub Authentication
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+// GitHub Callback URL
+router.get(
+  '/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  (req, res) => {
+    // Successful authentication, redirect as desired.
+    res.redirect('/todos');
+  }
+);
 
 module.exports = router;

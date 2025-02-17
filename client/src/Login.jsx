@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 export default function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // <-- import from react-router-dom
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -21,10 +21,7 @@ export default function Login({ onLogin }) {
         return res.json();
       })
       .then((data) => {
-        // Let parent know user is now authenticated
         onLogin();
-
-        // Immediately redirect to "/todos"
         navigate('/todos');
       })
       .catch((err) => {
@@ -32,7 +29,6 @@ export default function Login({ onLogin }) {
       });
   };
 
-  // For demonstration, a quick "register" method
   const handleRegister = () => {
     fetch('/api/auth/register', {
       method: 'POST',
@@ -88,10 +84,14 @@ export default function Login({ onLogin }) {
               </button>
             </form>
             <hr />
-            <div className="text-center">
+            <div className="d-flex justify-content-between">
               <button className="btn btn-success" onClick={handleRegister}>
                 Register
               </button>
+              {/* GitHub Login Button */}
+              <a href="/api/auth/github" className="btn btn-dark">
+                Login with GitHub
+              </a>
             </div>
           </div>
         </div>
